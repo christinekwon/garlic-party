@@ -7,45 +7,36 @@ import { Moon } from 'objects';
 
 
 class Clove extends Group {
-    constructor(parent, material, x, y, z, yRot, ) {
+    constructor(parent, material, x, y, z, yRot, infinity, infX, infY, infZ, jiggle) {
         // Call parent Group() constructor
         super();
 
         // Init state
         this.state = {
-            // gui: parent.state.gui,
-            bob: false,
-            // twirl: 0,
-            count: 0,
-            // count: radius * 100,
-            startGrowing: 0,
-            count: 0,
-            stopColor: false,
-            colorCount: 0.01,
-            decay: false,
-            decayCount: 0,
-            rotate: false,
-            rotateCount: 0,
-            pulse: false,
-            pulseCount: 0,
-            reset: false,
+
             infinity: false,
+            infX: 0,
+            infY: 0,
+            infZ: 0,
             jiggle: false,
             jiggleCount: 0,
             jiggleTo: 1,
             jiggleFactor: 5
 
         };
+        this.infX = infX;
+        this.infY = infY;
+        this.infZ = infZ;
 
-        this.maxRot = Math.PI / 2;
-        // this.maxRot = Math.PI;
-        this.checkInterval = 1000;
-        this.resetInterval = 10000;
-        this.maxPulse = 0.2;
-        this.pulseInterval = 60.0;
+        // if (infinity) {
+        //     this.state.infinity = true;
 
-        this.initTimestamp = 0;
-        this.translationFactor = 2.0 / 300;
+        // }
+
+        // if (jiggle) {
+        //     this.state.jiggle = true;
+        // }
+
 
         this.name = "CLOVE";
         this.xPos = x;
@@ -72,25 +63,14 @@ class Clove extends Group {
             this.add(obj);
             this.obj = obj;
             this.sphere = mesh;
-            // this.state.infinity = true;
+            this.state.infinity = infinity;
+            this.state.jiggle = jiggle;
 
         });
 
         parent.addToUpdateList(this);
 
-
-
-        // setTimeout(() => {
-        // 	this.state.startGrowing = 1;
-        // }, 3000);
-        // this.decay.bind(this);
-        // this.rotate.bind(this);
-        // this.reset.bind(this);
-        this.check.bind(this);
-        this.reset.bind(this);
         this.rotate.bind(this);
-        this.default.bind(this);
-        this.close.bind(this);
         this.infinity.bind(this);
         this.jiggle.bind(this);
     }
@@ -104,38 +84,7 @@ class Clove extends Group {
         this.state.jiggleCount = 0;
     }
 
-    check(maxRot, checkInterval, wait) {
 
-        var start0 = { z: 0 };
-        var target0 = { z: maxRot };
-        new TWEEN.Tween(start0)
-            .to(target0, checkInterval)
-            .onUpdate(() => {
-                this.obj.children[0].rotation.z = start0.z;
-            })
-            .start();
-
-        var start1 = { z: maxRot };
-        var target1 = { z: 0 }
-        new TWEEN.Tween(start1)
-            .to(target1, checkInterval)
-            .onUpdate(() => {
-                this.obj.children[0].rotation.z = start1.z;
-            })
-            .delay(checkInterval + wait)
-            .start();
-
-        // this.interval = 50.0;
-        // this.maxRot = maxRot;
-        // this.state.rotate = true;
-        // this.state.rotateCount = 0;
-        // setTimeout(() => {
-        //     this.maxRot = -maxRot;
-        //     this.state.rotate = true;
-        //     this.state.rotateCount = 0;
-        //     // at least 17
-        // }, this.interval * 20);
-    }
 
     rotate(maxRot, time) {
 
@@ -149,65 +98,26 @@ class Clove extends Group {
             .start();
     }
 
-    close(time) {
-
-        var start0 = { z: this.obj.children[0].rotation.z };
-        var target0 = { z: 0 };
-        new TWEEN.Tween(start0)
-            .to(target0, time)
-            .onUpdate(() => {
-                this.obj.children[0].rotation.z = start0.z;
-            })
-            .start();
-    }
-
-    // decay() {
-    //     console.log('decay');
-    //     this.state.decay = true;
-    //     this.state.decayCount = 0;
-    // }
-
-    reset() {
-        var start = { z: 0 };
-        var target = { z: Math.PI * 2 };
-        new TWEEN.Tween(start)
-            .to(target, this.resetInterval)
-            .onUpdate(() => {
-                this.obj.children[0].rotation.z = start.z;
-            })
-            .start();
-    }
-
-    default () {
-        this.state.decay = false;
-        this.state.decayCount = 0;
-        this.state.rotate = false;
-        this.state.rotateCount = 0;
-        this.state.pulse = false;
-        this.state.pulseCount = 0;
-        this.obj.children[0].scale.set(1, 1, 1);
-        this.obj.children[0].rotation.set(0, 0, 0);
-    }
-
-    // pulse() {
-    //     console.log('pulse');
-    //     this.state.pulse = true;
-    //     this.state.pulseCount = 0;
-    // }
-
 
     update(timeStamp) {
 
         if (this.state.infinity) {
-            this.obj.children[0].rotation.x += Math.PI / 256;
-            this.obj.children[0].rotation.y -= Math.PI / 64;
-            this.obj.children[0].rotation.z += Math.PI / 256;
+            if (this.infX) {
+                this.obj.children[0].rotation.x += Math.PI / this.infX;
+            }
+            if (this.infY) {
+                this.obj.children[0].rotation.y += Math.PI / this.infY;
+            }
+            if (this.infZ) {
+                this.obj.children[0].rotation.z += Math.PI / this.infZ;
+            }
+
         }
 
         if (this.state.jiggle) {
             // 256
             // this.obj.children[0].scale.addScalar(0.1 * this.state.jiggleTo);
-            this.obj.children[0].rotation.x += Math.PI / 64 * this.state.jiggleTo;
+            this.obj.children[0].rotation.x += Math.PI / 128 * this.state.jiggleTo;
             // if (this.state.jiggleCount % 100 == 0) {
             //     this.state.jiggleFactor += 1;
             //     // console.log(this.state.jiggleFactor);
